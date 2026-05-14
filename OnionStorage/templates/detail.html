@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Block {{ id }} — Detail</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar">
+  <a href="/" class="navbar-brand"><span>🧅</span> OnionStore</a>
+  <div class="navbar-links">
+    <a href="/"><i class="fas fa-th-large"></i> Dashboard</a>
+    <a href="#"><i class="fas fa-chart-line"></i> Analytics</a>
+    <a href="#"><i class="fas fa-bell"></i> Alerts</a>
+    <a href="#"><i class="fas fa-cog"></i> Settings</a>
+  </div>
+  <div class="navbar-right">
+    <div class="live-badge"><span class="pulse"></span> Live</div>
+    <div class="time-display" id="clock"></div>
+    <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar" id="sidebar">
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Main</div>
+      <a href="/" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="#" class="nav-item"><i class="fas fa-chart-line"></i> Analytics</a>
+      <div class="sidebar-section">Management</div>
+      <a href="#" class="nav-item"><i class="fas fa-bell"></i> Alerts</a>
+      <a href="#" class="nav-item"><i class="fas fa-history"></i> History</a>
+      <div class="sidebar-section">System</div>
+      <a href="#" class="nav-item"><i class="fas fa-microchip"></i> IoT Devices</a>
+      <a href="#" class="nav-item"><i class="fas fa-cog"></i> Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">A</div>
+        <div>
+          <div class="user-name">Admin</div>
+          <div class="user-role">Storage Manager</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <main class="main-content" id="mainContent">
+    <div class="detail-wrapper">
+
+      <div class="detail-header">
+        <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <div>
+          <div class="detail-title">🧅 Block {{ id }} — Detail View</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:3px;">Live sensor readings</div>
+        </div>
+      </div>
+
+      <div class="detail-card {{ data.status }}">
+        <div class="detail-status-row">
+          <div class="detail-status-label">Current Storage Condition</div>
+          <span class="status-badge {{ data.status }}">{{ data.status }}</span>
+        </div>
+
+        <div class="detail-metrics">
+          <div class="detail-metric">
+            <div class="detail-metric-icon">🌡️</div>
+            <div class="detail-metric-value">{{ data.temp }}°C</div>
+            <div class="detail-metric-label">Temperature</div>
+          </div>
+          <div class="detail-metric">
+            <div class="detail-metric-icon">💧</div>
+            <div class="detail-metric-value">{{ data.humidity }}%</div>
+            <div class="detail-metric-label">Humidity</div>
+          </div>
+          <div class="detail-metric">
+            <div class="detail-metric-icon">🌊</div>
+            <div class="detail-metric-value">{{ data.moisture }}</div>
+            <div class="detail-metric-label">Moisture</div>
+          </div>
+          <div class="detail-metric">
+            <div class="detail-metric-icon">💨</div>
+            <div class="detail-metric-value">{{ data.co2 }}</div>
+            <div class="detail-metric-label">CO₂ ppm</div>
+          </div>
+          <div class="detail-metric">
+            <div class="detail-metric-icon">🧅</div>
+            <div class="detail-metric-value" style="font-size:16px">Block {{ id }}</div>
+            <div class="detail-metric-label">Storage Unit</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">🧅 OnionStore &nbsp;|&nbsp; AI + IoT Monitoring</div>
+    </div>
+  </main>
+</div>
+
+<script>
+  function updateClock() {
+    document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+  }
+  setInterval(updateClock, 1000); updateClock();
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+</script>
+</body>
+</html>

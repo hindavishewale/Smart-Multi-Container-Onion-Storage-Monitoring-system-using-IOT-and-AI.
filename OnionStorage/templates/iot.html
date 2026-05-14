@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IoT Devices — OnionStore</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <a href="/" class="navbar-brand"><span>🧅</span> OnionStore</a>
+  <div class="navbar-links">
+    <a href="/"><i class="fas fa-th-large"></i> Dashboard</a>
+    <a href="/analytics"><i class="fas fa-chart-line"></i> Analytics</a>
+    <a href="/alerts"><i class="fas fa-bell"></i> Alerts</a>
+    <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
+  </div>
+  <div class="navbar-right">
+    <div class="live-badge"><span class="pulse"></span> Live</div>
+    <div class="time-display" id="clock"></div>
+    <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+  </div>
+</nav>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Main</div>
+      <a href="/" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="/analytics" class="nav-item"><i class="fas fa-chart-line"></i> Analytics</a>
+      <div class="sidebar-section">Management</div>
+      <a href="/alerts" class="nav-item"><i class="fas fa-bell"></i> Alerts</a>
+      <a href="/history" class="nav-item"><i class="fas fa-history"></i> History</a>
+      <a href="/testdata" class="nav-item"><i class="fas fa-file-csv"></i> Test Data</a>
+      <div class="sidebar-section">System</div>
+      <a href="/iot" class="nav-item active"><i class="fas fa-microchip"></i> IoT Devices</a>
+      <a href="/settings" class="nav-item"><i class="fas fa-cog"></i> Settings</a>
+      <a href="/about" class="nav-item"><i class="fas fa-info-circle"></i> About</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">A</div>
+        <div><div class="user-name">Admin</div><div class="user-role">Storage Manager</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="page-title"><i class="fas fa-microchip" style="color:var(--accent)"></i> IoT Devices</div>
+      <div class="page-subtitle">Live hardware sensor readings and actuator status — updates every 2 seconds</div>
+    </div>
+
+    <!-- Live Sensor Cards -->
+    <div class="section-header">
+      <div class="section-title"><i class="fas fa-wifi"></i> Connected Devices</div>
+    </div>
+
+    <div class="blocks-grid" style="margin-bottom:24px">
+
+      <!-- ESP Block 1 -->
+      <div class="chart-card" style="border-top:4px solid #1a9e5c">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div style="font-size:16px;font-weight:700">🔌 ESP8266 — Block 1</div>
+          <span id="esp1status" class="status-badge Safe">Checking...</span>
+        </div>
+        <div class="metrics-grid" style="margin-bottom:14px">
+          <div class="metric">
+            <div class="metric-icon temp-icon"><i class="fas fa-thermometer-half"></i></div>
+            <div class="metric-value" id="esp1temp">—</div>
+            <div class="metric-label">Temperature</div>
+            <div class="metric-bar"><div class="metric-fill temp-fill" id="esp1tempbar" style="width:0%"></div></div>
+          </div>
+          <div class="metric">
+            <div class="metric-icon hum-icon"><i class="fas fa-tint"></i></div>
+            <div class="metric-value" id="esp1hum">—</div>
+            <div class="metric-label">Humidity</div>
+            <div class="metric-bar"><div class="metric-fill hum-fill" id="esp1humbar" style="width:0%"></div></div>
+          </div>
+          <div class="metric">
+            <div class="metric-icon co2-icon"><i class="fas fa-wind"></i></div>
+            <div class="metric-value" id="esp1co2">—</div>
+            <div class="metric-label">CO₂ ppm</div>
+            <div class="metric-bar"><div class="metric-fill co2-fill" id="esp1co2bar" style="width:0%"></div></div>
+          </div>
+          <div class="metric">
+            <div class="metric-icon moist-icon"><i class="fas fa-water"></i></div>
+            <div class="metric-value" id="esp1moist">—</div>
+            <div class="metric-label">Moisture</div>
+            <div class="metric-bar"><div class="metric-fill moist-fill" id="esp1moistbar" style="width:0%"></div></div>
+          </div>
+        </div>
+        <table class="status-table">
+          <tbody>
+            <tr><td style="color:var(--text3)">Microcontroller</td><td>ESP8266 NodeMCU</td></tr>
+            <tr><td style="color:var(--text3)">Temp Sensor</td><td>DHT11 — Pin D3 (GPIO0)</td></tr>
+            <tr><td style="color:var(--text3)">Gas Sensor</td><td>MQ135 — Pin A0</td></tr>
+            <tr><td style="color:var(--text3)">Relay (Fan)</td><td>Pin D4 (GPIO2) — LOW trigger</td></tr>
+            <tr><td style="color:var(--text3)">Display</td><td>OLED SSD1306 128×64 I2C</td></tr>
+            <tr><td style="color:var(--text3)">WiFi</td><td>12345678</td></tr>
+            <tr><td style="color:var(--text3)">Server</td><td>10.23.217.73:8000/predict</td></tr>
+            <tr><td style="color:var(--text3)">Send Interval</td><td>Every 5 seconds</td></tr>
+            <tr><td style="color:var(--text3)">AI Status</td><td id="esp1aistatus">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ESP Block 2 -->
+      <div class="chart-card" style="border-top:4px solid #d4820a">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div style="font-size:16px;font-weight:700">🔌 ESP8266 — Block 2</div>
+          <span id="esp2status" class="status-badge Warning">Checking...</span>
+        </div>
+        <div class="metrics-grid" style="margin-bottom:14px">
+          <div class="metric">
+            <div class="metric-icon temp-icon"><i class="fas fa-thermometer-half"></i></div>
+            <div class="metric-value" id="esp2temp">—</div>
+            <div class="metric-label">Temperature</div>
+            <div class="metric-bar"><div class="metric-fill temp-fill" id="esp2tempbar" style="width:0%"></div></div>
+          </div>
+          <div class="metric">
+            <div class="metric-icon hum-icon"><i class="fas fa-tint"></i></div>
+            <div class="metric-value" id="esp2hum">—</div>
+            <div class="metric-label">Humidity</div>
+            <div class="metric-bar"><div class="metric-fill hum-fill" id="esp2humbar" style="width:0%"></div></div>
+          </div>
+          <div class="metric">
+            <div class="metric-icon co2-icon"><i class="fas fa-wind"></i></div>
+            <div class="metric-value" id="esp2co2">—</div>
+            <div class="metric-label">CO₂ ppm</div>
+            <div class="metric-bar"><div class="metric-fill co2-fill" id="esp2co2bar" style="width:0%"></div></div>
+          </div>
+          <div class="metric">
+            <div class="metric-icon moist-icon"><i class="fas fa-water"></i></div>
+            <div class="metric-value" id="esp2moist">—</div>
+            <div class="metric-label">Moisture</div>
+            <div class="metric-bar"><div class="metric-fill moist-fill" id="esp2moistbar" style="width:0%"></div></div>
+          </div>
+        </div>
+        <table class="status-table">
+          <tbody>
+            <tr><td style="color:var(--text3)">Microcontroller</td><td>ESP8266 NodeMCU</td></tr>
+            <tr><td style="color:var(--text3)">Temp Sensor</td><td>DHT11 — Pin D3 (GPIO0)</td></tr>
+            <tr><td style="color:var(--text3)">Gas Sensor</td><td>MQ135 — Pin A0</td></tr>
+            <tr><td style="color:var(--text3)">Relay (Fan)</td><td>Pin D4 (GPIO2) — LOW trigger</td></tr>
+            <tr><td style="color:var(--text3)">Display</td><td>OLED SSD1306 128×64 I2C</td></tr>
+            <tr><td style="color:var(--text3)">WiFi</td><td>12345678</td></tr>
+            <tr><td style="color:var(--text3)">Server</td><td>10.23.217.73:8000/predict</td></tr>
+            <tr><td style="color:var(--text3)">Send Interval</td><td>Every 5 seconds</td></tr>
+            <tr><td style="color:var(--text3)">AI Status</td><td id="esp2aistatus">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Fan Actuator -->
+    <div class="section-header">
+      <div class="section-title"><i class="fas fa-bolt"></i> Actuator Status (Live)</div>
+    </div>
+
+    <div class="blocks-grid" style="grid-template-columns:1fr 1fr;margin-bottom:24px">
+      <div class="chart-card" style="text-align:center;padding:28px">
+        <div style="font-size:40px;margin-bottom:8px">🌀</div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:6px">Block 1 — Cooling Fan</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:4px">Relay D4 — LOW level trigger</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:14px">Triggers: Temp > 33°C <strong>OR</strong> Gas > 900</div>
+        <div id="fan1-status" class="actuator off" style="margin:0 auto;width:fit-content;font-size:14px;padding:8px 24px">OFF</div>
+        <div id="fan1-reason" style="font-size:11px;color:var(--text3);margin-top:8px">—</div>
+      </div>
+      <div class="chart-card" style="text-align:center;padding:28px">
+        <div style="font-size:40px;margin-bottom:8px">🌀</div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:6px">Block 2 — Cooling Fan</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:4px">Relay D4 — LOW level trigger</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:14px">Triggers: Temp > 33°C <strong>OR</strong> Gas > 900</div>
+        <div id="fan2-status" class="actuator off" style="margin:0 auto;width:fit-content;font-size:14px;padding:8px 24px">OFF</div>
+        <div id="fan2-reason" style="font-size:11px;color:var(--text3);margin-top:8px">—</div>
+      </div>
+    </div>
+
+    <div class="footer">🧅 OnionStore | IoT Devices</div>
+  </main>
+</div>
+<script>
+  function updateClock(){ document.getElementById('clock').textContent = new Date().toLocaleTimeString(); }
+  setInterval(updateClock,1000); updateClock();
+  function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
+
+  function setStatus(id, connected, status){
+    const el = document.getElementById(id);
+    el.textContent  = connected ? 'Connected ✅' : 'No Data ⏳';
+    el.style.background = connected ? '#d1fae5' : '#f3f4f6';
+    el.style.color      = connected ? '#065f46' : '#6b7280';
+    el.style.border     = connected ? '1px solid #a7f3d0' : '1px solid #d1d5db';
+  }
+
+  function setFan(fanId, reasonId, on, temp, gas){
+    const el = document.getElementById(fanId);
+    el.className   = `actuator ${on?'on':'off'}`;
+    el.textContent = on ? 'ON' : 'OFF';
+    const r = document.getElementById(reasonId);
+    if(on) r.textContent = temp>33 ? `Temp ${temp}°C > 33°C` : `Gas ${gas} > 900`;
+    else   r.textContent = 'All conditions normal';
+  }
+
+  function updateIoT(){
+    fetch('/api/blocks').then(r=>r.json()).then(blocks=>{
+      blocks.forEach((b, i) => {
+        const n = i+1;
+        const connected = b.temp !== null && b.temp !== undefined;
+
+        setStatus(`esp${n}status`, connected, b.status);
+
+        document.getElementById(`esp${n}temp`).textContent  = b.temp     ? b.temp+'°C'    : '—';
+        document.getElementById(`esp${n}hum`).textContent   = b.humidity ? b.humidity+'%' : '—';
+        document.getElementById(`esp${n}co2`).textContent   = b.co2      ? b.co2+' ppm'  : '—';
+        document.getElementById(`esp${n}moist`).textContent = b.moisture ? b.moisture     : '—';
+        document.getElementById(`esp${n}aistatus`).innerHTML = b.status !== 'No Data'
+          ? `<span class="status-badge ${b.status}">${b.status}</span>` : '—';
+
+        document.getElementById(`esp${n}tempbar`).style.width  = b.temp     ? Math.min(((b.temp-20)/20*100),100)+'%' : '0%';
+        document.getElementById(`esp${n}humbar`).style.width   = b.humidity ? Math.min(b.humidity,100)+'%'           : '0%';
+        document.getElementById(`esp${n}co2bar`).style.width   = b.co2      ? Math.min((b.co2/800*100),100)+'%'      : '0%';
+        document.getElementById(`esp${n}moistbar`).style.width = b.moisture ? Math.min((b.moisture/20*100),100)+'%'  : '0%';
+
+        const fanOn = b.temp > 33 || b.co2 > 900;
+        setFan(`fan${n}-status`, `fan${n}-reason`, fanOn, b.temp, b.co2);
+      });
+    });
+  }
+
+  updateIoT();
+  setInterval(updateIoT, 2000);
+</script>
+</body>
+</html>

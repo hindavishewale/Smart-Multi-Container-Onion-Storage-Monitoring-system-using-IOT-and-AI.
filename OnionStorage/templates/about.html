@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About — OnionStore</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <a href="/" class="navbar-brand"><span>🧅</span> OnionStore</a>
+  <div class="navbar-links">
+    <a href="/"><i class="fas fa-th-large"></i> Dashboard</a>
+    <a href="/analytics"><i class="fas fa-chart-line"></i> Analytics</a>
+    <a href="/alerts"><i class="fas fa-bell"></i> Alerts</a>
+    <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
+  </div>
+  <div class="navbar-right">
+    <div class="time-display" id="clock"></div>
+    <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+  </div>
+</nav>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Main</div>
+      <a href="/" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="/analytics" class="nav-item"><i class="fas fa-chart-line"></i> Analytics</a>
+      <div class="sidebar-section">Management</div>
+      <a href="/alerts" class="nav-item"><i class="fas fa-bell"></i> Alerts</a>
+      <a href="/history" class="nav-item"><i class="fas fa-history"></i> History</a>
+      <a href="/testdata" class="nav-item"><i class="fas fa-file-csv"></i> Test Data</a>
+      <div class="sidebar-section">System</div>
+      <a href="/iot" class="nav-item"><i class="fas fa-microchip"></i> IoT Devices</a>
+      <a href="/settings" class="nav-item"><i class="fas fa-cog"></i> Settings</a>
+      <a href="/about" class="nav-item active"><i class="fas fa-info-circle"></i> About</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">A</div>
+        <div><div class="user-name">Admin</div><div class="user-role">Storage Manager</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="page-title">🧅 About This Project</div>
+      <div class="page-subtitle">Smart Onion Storage Monitoring System — AI + IoT</div>
+    </div>
+
+    <!-- Project Overview -->
+    <div class="chart-card" style="margin-bottom:20px">
+      <div class="chart-title"><i class="fas fa-project-diagram"></i> Project Overview</div>
+      <p style="font-size:14px;color:var(--text2);line-height:1.8;margin-top:8px">
+        This is a <strong>Smart Onion Storage Monitoring System</strong> that combines <strong>Artificial Intelligence</strong> and <strong>IoT sensors</strong> to monitor onion storage conditions in real-time. The system uses an ESP8266 microcontroller with DHT11 and MQ135 sensors to measure Temperature, Humidity, and Gas levels inside storage containers. This data is sent to a Flask web server every 2 seconds, where an AI model predicts whether the storage condition is <span style="color:#1a9e5c;font-weight:600">Safe</span>, <span style="color:#d4820a;font-weight:600">Warning</span>, or <span style="color:#c0392b;font-weight:600">Critical</span>. Based on the prediction, IoT actuators (fans, dehumidifier) are automatically controlled to maintain optimal storage conditions and prevent onion spoilage.
+      </p>
+    </div>
+
+    <div class="blocks-grid" style="grid-template-columns:1fr 1fr;margin-bottom:20px">
+
+      <!-- How It Works -->
+      <div class="chart-card">
+        <div class="chart-title"><i class="fas fa-cogs"></i> How It Works</div>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
+          <div class="action-item"><span style="background:var(--accent);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</span> ESP8266 reads Temp, Humidity, Gas every 2 seconds</div>
+          <div class="action-item"><span style="background:var(--accent);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</span> Sends JSON to Flask server at /predict endpoint</div>
+          <div class="action-item"><span style="background:var(--accent);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">3</span> Flask derives Moisture and CO₂ ppm from raw values</div>
+          <div class="action-item"><span style="background:var(--accent);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">4</span> AI model predicts: Safe / Warning / Critical</div>
+          <div class="action-item"><span style="background:var(--accent);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">5</span> Decision engine triggers fans/dehumidifier</div>
+          <div class="action-item"><span style="background:var(--accent);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">6</span> Dashboard updates live every 2 seconds</div>
+          <div class="action-item"><span style="background:var(--accent);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">7</span> All readings saved to CSV for model retraining</div>
+        </div>
+      </div>
+
+      <!-- Tech Stack -->
+      <div class="chart-card">
+        <div class="chart-title"><i class="fas fa-layer-group"></i> Tech Stack</div>
+        <table class="status-table" style="margin-top:8px">
+          <tbody>
+            <tr><td style="color:var(--text3)">Backend</td><td>Python Flask</td></tr>
+            <tr><td style="color:var(--text3)">AI/ML</td><td>Scikit-learn (Decision Tree)</td></tr>
+            <tr><td style="color:var(--text3)">Data</td><td>Pandas, NumPy</td></tr>
+            <tr><td style="color:var(--text3)">Frontend</td><td>HTML, CSS, JavaScript</td></tr>
+            <tr><td style="color:var(--text3)">Charts</td><td>Chart.js</td></tr>
+            <tr><td style="color:var(--text3)">Icons</td><td>Font Awesome 6</td></tr>
+            <tr><td style="color:var(--text3)">Microcontroller</td><td>ESP8266 NodeMCU</td></tr>
+            <tr><td style="color:var(--text3)">Sensors</td><td>DHT11, MQ135</td></tr>
+            <tr><td style="color:var(--text3)">Display</td><td>OLED SSD1306 (I2C)</td></tr>
+            <tr><td style="color:var(--text3)">Protocol</td><td>HTTP POST (JSON)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- AI Model Details -->
+    <div class="chart-card" style="margin-bottom:20px">
+      <div class="chart-title"><i class="fas fa-brain"></i> AI Model — Decision Tree Classifier</div>
+      <div class="blocks-grid" style="grid-template-columns:1fr 1fr 1fr;margin-top:12px">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Model Info</div>
+          <table class="status-table">
+            <tbody>
+              <tr><td style="color:var(--text3)">Algorithm</td><td>Decision Tree</td></tr>
+              <tr><td style="color:var(--text3)">Max Depth</td><td>6</td></tr>
+              <tr><td style="color:var(--text3)">Min Samples Split</td><td>10</td></tr>
+              <tr><td style="color:var(--text3)">Train Accuracy</td><td style="color:#1a9e5c">~92%</td></tr>
+              <tr><td style="color:var(--text3)">Test Accuracy</td><td style="color:#1a9e5c">~89%</td></tr>
+              <tr><td style="color:var(--text3)">Output Classes</td><td>3</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Input Features</div>
+          <table class="status-table">
+            <tbody>
+              <tr><td style="color:var(--text3)">Feature 1</td><td>🌡️ Temperature (°C)</td></tr>
+              <tr><td style="color:var(--text3)">Feature 2</td><td>💧 Humidity (%)</td></tr>
+              <tr><td style="color:var(--text3)">Feature 3</td><td>🌊 Moisture (g/m³)</td></tr>
+              <tr><td style="color:var(--text3)">Feature 4</td><td>💨 CO₂ (ppm)</td></tr>
+              <tr><td style="color:var(--text3)">Source</td><td>ESP8266 sensors</td></tr>
+              <tr><td style="color:var(--text3)">Derived</td><td>Moisture, CO₂ ppm</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Output Classes</div>
+          <table class="status-table">
+            <tbody>
+              <tr><td><span class="status-badge Safe">Safe</span></td><td style="color:var(--text3)">All values normal</td></tr>
+              <tr><td><span class="status-badge Warning">Warning</span></td><td style="color:var(--text3)">One param high</td></tr>
+              <tr><td><span class="status-badge Critical">Critical</span></td><td style="color:var(--text3)">Multiple params high</td></tr>
+              <tr><td style="color:var(--text3)">Safe detect</td><td style="color:#1a9e5c">94%</td></tr>
+              <tr><td style="color:var(--text3)">Warning detect</td><td style="color:#d4820a">85%</td></tr>
+              <tr><td style="color:var(--text3)">Critical detect</td><td style="color:#c0392b">96%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dataset Details -->
+    <div class="chart-card" style="margin-bottom:20px">
+      <div class="chart-title"><i class="fas fa-database"></i> Dataset Details</div>
+      <div class="blocks-grid" style="grid-template-columns:1fr 1fr;margin-top:12px">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">onion_storage_dataset.csv</div>
+          <table class="status-table">
+            <tbody>
+              <tr><td style="color:var(--text3)">Total Rows</td><td>2200</td></tr>
+              <tr><td style="color:var(--text3)">Columns</td><td>5 features + 1 label</td></tr>
+              <tr><td style="color:var(--text3)">Temperature</td><td>20°C – 40°C (random)</td></tr>
+              <tr><td style="color:var(--text3)">Humidity</td><td>50% – 90% (random)</td></tr>
+              <tr><td style="color:var(--text3)">Moisture</td><td>Humidity × 0.2 + noise</td></tr>
+              <tr><td style="color:var(--text3)">CO₂</td><td>Temp×10 + Moisture×5 + noise</td></tr>
+              <tr><td style="color:var(--text3)">Status</td><td>Safe / Warning / Critical</td></tr>
+              <tr><td style="color:var(--text3)">Train Split</td><td>80% (1760 rows)</td></tr>
+              <tr><td style="color:var(--text3)">Test Split</td><td>20% (440 rows)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Status Label Rules</div>
+          <table class="status-table">
+            <tbody>
+              <tr><td style="color:var(--text3)">Critical if</td><td>Temp>32 OR Hum>75 OR CO₂>550</td></tr>
+              <tr><td style="color:var(--text3)">Warning if</td><td>Temp>28 OR Hum>65 OR CO₂>400</td></tr>
+              <tr><td style="color:var(--text3)">Safe if</td><td>All values below warning</td></tr>
+              <tr><td style="color:var(--text3)">Boundary noise</td><td>Random flips near thresholds</td></tr>
+              <tr><td style="color:var(--text3)">~Critical rows</td><td>~850 (39%)</td></tr>
+              <tr><td style="color:var(--text3)">~Warning rows</td><td>~900 (41%)</td></tr>
+              <tr><td style="color:var(--text3)">~Safe rows</td><td>~450 (20%)</td></tr>
+              <tr><td style="color:var(--text3)">Real data</td><td>sensor_test_data.csv</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ESP Data Flow -->
+    <div class="chart-card" style="margin-bottom:20px">
+      <div class="chart-title"><i class="fas fa-exchange-alt"></i> ESP8266 → Flask Data Flow</div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:20px;margin-top:12px;font-family:monospace;font-size:13px;line-height:2;color:var(--text2)">
+        <div><span style="color:var(--accent);font-weight:700">ESP8266 sends every 2s:</span></div>
+        <div style="margin-left:16px">POST http://10.23.217.73:8000/predict</div>
+        <div style="margin-left:16px">Content-Type: application/json</div>
+        <div style="margin-left:16px;color:#1a9e5c">{"temperature": 28.5, "humidity": 29.0, "co2": 1471, "block_id": 1}</div>
+        <br/>
+        <div><span style="color:var(--accent);font-weight:700">Flask derives:</span></div>
+        <div style="margin-left:16px">moisture = humidity × 0.2 + noise → <span style="color:#1a9e5c">5.8</span></div>
+        <div style="margin-left:16px">co2_ppm = (gas/1024)×800 + temp×5 → <span style="color:#1a9e5c">1292 ppm</span></div>
+        <br/>
+        <div><span style="color:var(--accent);font-weight:700">AI Model predicts:</span></div>
+        <div style="margin-left:16px">Input: [28.5, 29.0, 5.8, 1292] → Output: <span style="color:#c0392b;font-weight:700">"Critical"</span></div>
+        <br/>
+        <div><span style="color:var(--accent);font-weight:700">Flask returns to ESP:</span></div>
+        <div style="margin-left:16px;color:#c0392b">Critical</div>
+        <br/>
+        <div><span style="color:var(--accent);font-weight:700">ESP OLED shows:</span></div>
+        <div style="margin-left:16px">Temp: 28.5C | Hum: 29.0% | Gas: 1471 | Risk: Critical</div>
+      </div>
+    </div>
+
+    <!-- Decision Engine -->
+    <div class="chart-card" style="margin-bottom:20px">
+      <div class="chart-title"><i class="fas fa-bolt"></i> Decision Engine — IoT Control Rules</div>
+      <table class="status-table" style="margin-top:8px">
+        <thead><tr><th>Condition</th><th>Threshold</th><th>Action</th><th>Device</th></tr></thead>
+        <tbody>
+          <tr><td>Temperature too high</td><td>> 32°C</td><td>🌀 Cooling Fan ON</td><td>Relay → DC Fan</td></tr>
+          <tr><td>Humidity too high</td><td>> 75%</td><td>💧 Dehumidifier ON</td><td>Relay → Dehumidifier</td></tr>
+          <tr><td>CO₂ too high</td><td>> 550 ppm</td><td>💨 Exhaust Fan ON</td><td>Relay → Exhaust Fan</td></tr>
+          <tr><td>All conditions high</td><td>All 3 triggered</td><td>⚠️ Emergency Mode</td><td>All devices ON</td></tr>
+          <tr><td>All normal</td><td>Below all thresholds</td><td>✅ No action</td><td>All devices OFF</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer">🧅 OnionStore Monitoring System | AI + IoT | Smart Agriculture</div>
+  </main>
+</div>
+<script>
+  function updateClock(){ document.getElementById('clock').textContent = new Date().toLocaleTimeString(); }
+  setInterval(updateClock,1000); updateClock();
+  function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
+</script>
+</body>
+</html>

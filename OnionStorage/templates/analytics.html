@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Analytics — OnionStore</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<nav class="navbar">
+  <a href="/" class="navbar-brand"><span>🧅</span> OnionStore</a>
+  <div class="navbar-links">
+    <a href="/"><i class="fas fa-th-large"></i> Dashboard</a>
+    <a href="/analytics" class="active"><i class="fas fa-chart-line"></i> Analytics</a>
+    <a href="/alerts"><i class="fas fa-bell"></i> Alerts</a>
+    <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
+  </div>
+  <div class="navbar-right">
+    <div class="live-badge"><span class="pulse"></span> Live</div>
+    <div class="time-display" id="clock"></div>
+    <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Main</div>
+      <a href="/" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="/analytics" class="nav-item active"><i class="fas fa-chart-line"></i> Analytics</a>
+      <div class="sidebar-section">Management</div>
+      <a href="/alerts" class="nav-item"><i class="fas fa-bell"></i> Alerts</a>
+      <a href="/history" class="nav-item"><i class="fas fa-history"></i> History</a>
+      <a href="/testdata" class="nav-item"><i class="fas fa-file-csv"></i> Test Data</a>
+      <div class="sidebar-section">System</div>
+      <a href="/iot" class="nav-item"><i class="fas fa-microchip"></i> IoT Devices</a>
+      <a href="/settings" class="nav-item"><i class="fas fa-cog"></i> Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">A</div>
+        <div><div class="user-name">Admin</div><div class="user-role">Storage Manager</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="page-title"><i class="fas fa-chart-line" style="color:var(--accent)"></i> Analytics</div>
+      <div class="page-subtitle">Sensor trends and performance insights for all storage blocks</div>
+    </div>
+
+    <!-- Analytics Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon ic-orange"><i class="fas fa-thermometer-half"></i></div>
+        <div><div class="stat-value" id="a-temp">—</div><div class="stat-label">Current Avg Temp</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon ic-blue"><i class="fas fa-tint"></i></div>
+        <div><div class="stat-value" id="a-hum">—</div><div class="stat-label">Current Avg Humidity</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon ic-purple"><i class="fas fa-wind"></i></div>
+        <div><div class="stat-value" id="a-co2">—</div><div class="stat-label">Current Avg CO₂</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon ic-green"><i class="fas fa-shield-alt"></i></div>
+        <div><div class="stat-value" id="a-safe">—</div><div class="stat-label">Safe Blocks</div></div>
+      </div>
+    </div>
+
+    <!-- Line Charts -->
+    <div class="charts-row" style="grid-template-columns:1fr 1fr">
+      <div class="chart-card">
+        <div class="chart-title"><i class="fas fa-thermometer-half"></i> Temperature Trend (Last 20 readings)</div>
+        <canvas id="tempLine" height="140"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="fas fa-tint"></i> Humidity Trend (Last 20 readings)</div>
+        <canvas id="humLine" height="140"></canvas>
+      </div>
+    </div>
+
+    <div class="charts-row" style="grid-template-columns:1fr 1fr">
+      <div class="chart-card">
+        <div class="chart-title"><i class="fas fa-wind"></i> CO₂ Level Trend</div>
+        <canvas id="co2Line" height="140"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="fas fa-chart-pie"></i> Risk Distribution</div>
+        <canvas id="riskPie" height="140"></canvas>
+      </div>
+    </div>
+
+    <!-- Threshold Reference -->
+    <div class="table-card">
+      <div class="chart-title"><i class="fas fa-sliders-h"></i> Threshold Reference</div>
+      <table class="status-table">
+        <thead>
+          <tr><th>Parameter</th><th>Safe Range</th><th>Warning Range</th><th>Critical Range</th><th>Unit</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><i class="fas fa-thermometer-half" style="color:#e74c3c"></i> Temperature</td><td style="color:#1a9e5c">≤ 28</td><td style="color:#d4820a">28 – 32</td><td style="color:#c0392b">> 32</td><td>°C</td></tr>
+          <tr><td><i class="fas fa-tint" style="color:#3498db"></i> Humidity</td><td style="color:#1a9e5c">≤ 65</td><td style="color:#d4820a">65 – 75</td><td style="color:#c0392b">> 75</td><td>%</td></tr>
+          <tr><td><i class="fas fa-wind" style="color:#9b59b6"></i> CO₂</td><td style="color:#1a9e5c">≤ 400</td><td style="color:#d4820a">400 – 550</td><td style="color:#c0392b">> 550</td><td>ppm</td></tr>
+          <tr><td><i class="fas fa-water" style="color:#1abc9c"></i> Moisture</td><td style="color:#1a9e5c">≤ 14</td><td style="color:#d4820a">14 – 16</td><td style="color:#c0392b">> 16</td><td>g/m³</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer">🧅 OnionStore | Analytics</div>
+  </main>
+</div>
+
+<script>
+  function updateClock(){ document.getElementById('clock').textContent = new Date().toLocaleTimeString(); }
+  setInterval(updateClock,1000); updateClock();
+  function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
+
+  // Rolling history
+  const MAX = 20;
+  const history = { labels:[], b1_temp:[], b1_hum:[], b1_co2:[], b2_temp:[], b2_hum:[], b2_co2:[] };
+
+  const mkLine = (id, label1, label2, c1, c2) => new Chart(document.getElementById(id),{
+    type:'line',
+    data:{ labels:[], datasets:[
+      {label:label1, data:[], borderColor:c1, backgroundColor:c1+'22', tension:0.4, pointRadius:3, fill:true},
+      {label:label2, data:[], borderColor:c2, backgroundColor:c2+'22', tension:0.4, pointRadius:3, fill:true}
+    ]},
+    options:{ plugins:{legend:{labels:{color:'#6b4c35',font:{family:'Inter'}}}},
+      scales:{ x:{ticks:{color:'#6b4c35',maxTicksLimit:6}, grid:{color:'rgba(181,69,27,0.08)'}},
+               y:{ticks:{color:'#6b4c35'}, grid:{color:'rgba(181,69,27,0.08)'}} } }
+  });
+
+  const tempChart = mkLine('tempLine','Block 1 Temp','Block 2 Temp','#e74c3c','#e07b39');
+  const humChart  = mkLine('humLine', 'Block 1 Hum', 'Block 2 Hum', '#3498db','#1abc9c');
+  const co2Chart  = mkLine('co2Line', 'Block 1 CO₂', 'Block 2 CO₂', '#9b59b6','#8e44ad');
+
+  const riskChart = new Chart(document.getElementById('riskPie'),{
+    type:'doughnut',
+    data:{ labels:['Safe','Warning','Critical'],
+      datasets:[{data:[0,0,0], backgroundColor:['#1a9e5c','#d4820a','#c0392b'], borderWidth:2, borderColor:'#fff'}]},
+    options:{ plugins:{legend:{labels:{color:'#6b4c35'}}}, cutout:'60%' }
+  });
+
+  function push(chart, label, ...vals){
+    chart.data.labels.push(label);
+    vals.forEach((v,i) => chart.data.datasets[i].data.push(v));
+    if(chart.data.labels.length > MAX){
+      chart.data.labels.shift();
+      chart.data.datasets.forEach(d => d.data.shift());
+    }
+    chart.update();
+  }
+
+  function fetchData(){
+    fetch('/api/blocks').then(r=>r.json()).then(blocks=>{
+      const t = new Date().toLocaleTimeString();
+      const b1 = blocks[0], b2 = blocks[1];
+
+      document.getElementById('a-temp').textContent = b1.temp ? ((b1.temp + (b2.temp||0))/2).toFixed(1)+'°C' : '—';
+      document.getElementById('a-hum').textContent  = b1.humidity ? ((b1.humidity + (b2.humidity||0))/2).toFixed(1)+'%' : '—';
+      document.getElementById('a-co2').textContent  = b1.co2 ? ((b1.co2 + (b2.co2||0))/2).toFixed(0)+' ppm' : '—';
+      document.getElementById('a-safe').textContent = blocks.filter(b=>b.status==='Safe').length + '/2';
+
+      push(tempChart, t, b1.temp||null, b2.temp||null);
+      push(humChart,  t, b1.humidity||null, b2.humidity||null);
+      push(co2Chart,  t, b1.co2||null, b2.co2||null);
+
+      const s={Safe:0,Warning:0,Critical:0};
+      blocks.forEach(b=>{ if(s[b.status]!==undefined) s[b.status]++; });
+      riskChart.data.datasets[0].data = [s.Safe, s.Warning, s.Critical];
+      riskChart.update();
+    });
+  }
+  fetchData();
+  setInterval(fetchData, 2000);
+</script>
+</body>
+</html>

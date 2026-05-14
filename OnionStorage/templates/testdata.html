@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Test Data — OnionStore</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<nav class="navbar">
+  <a href="/" class="navbar-brand"><span>🧅</span> OnionStore</a>
+  <div class="navbar-links">
+    <a href="/"><i class="fas fa-th-large"></i> Dashboard</a>
+    <a href="/analytics"><i class="fas fa-chart-line"></i> Analytics</a>
+    <a href="/alerts"><i class="fas fa-bell"></i> Alerts</a>
+    <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
+  </div>
+  <div class="navbar-right">
+    <div class="live-badge"><span class="pulse"></span> Live</div>
+    <div class="time-display" id="clock"></div>
+    <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+  </div>
+</nav>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Main</div>
+      <a href="/" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="/analytics" class="nav-item"><i class="fas fa-chart-line"></i> Analytics</a>
+      <div class="sidebar-section">Management</div>
+      <a href="/alerts" class="nav-item"><i class="fas fa-bell"></i> Alerts</a>
+      <a href="/history" class="nav-item"><i class="fas fa-history"></i> History</a>
+      <a href="/testdata" class="nav-item active"><i class="fas fa-file-csv"></i> Test Data</a>
+      <div class="sidebar-section">System</div>
+      <a href="/iot" class="nav-item"><i class="fas fa-microchip"></i> IoT Devices</a>
+      <a href="/settings" class="nav-item"><i class="fas fa-cog"></i> Settings</a>
+      <a href="/about" class="nav-item"><i class="fas fa-info-circle"></i> About</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">A</div>
+        <div><div class="user-name">Admin</div><div class="user-role">Storage Manager</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="page-title"><i class="fas fa-file-csv" style="color:var(--accent)"></i> Test Data</div>
+      <div class="page-subtitle">Real ESP sensor readings saved for AI model retraining — auto updates every 5s</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon ic-purple"><i class="fas fa-database"></i></div>
+        <div><div class="stat-value" id="totalRows">—</div><div class="stat-label">Total Readings</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon ic-green"><i class="fas fa-check-circle"></i></div>
+        <div><div class="stat-value" id="safeRows">—</div><div class="stat-label">Safe</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#fef3c7;color:#d4820a"><i class="fas fa-exclamation-triangle"></i></div>
+        <div><div class="stat-value" id="warnRows">—</div><div class="stat-label">Warning</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#fee2e2;color:#c0392b"><i class="fas fa-exclamation-circle"></i></div>
+        <div><div class="stat-value" id="critRows">—</div><div class="stat-label">Critical</div></div>
+      </div>
+    </div>
+
+    <div class="charts-row" style="grid-template-columns:1fr 300px">
+      <div class="chart-card">
+        <div class="chart-title"><i class="fas fa-chart-bar"></i> Status Distribution in Collected Data</div>
+        <canvas id="testBar" height="120"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="fas fa-chart-pie"></i> Proportion</div>
+        <canvas id="testPie" height="160"></canvas>
+      </div>
+    </div>
+
+    <!-- Info box -->
+    <div class="chart-card" style="margin-bottom:20px">
+      <div class="chart-title"><i class="fas fa-info-circle"></i> What is this data used for?</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:12px">
+        <div class="action-item"><i class="fas fa-satellite-dish"></i> Every ESP reading is saved here automatically</div>
+        <div class="action-item"><i class="fas fa-brain"></i> Used to retrain AI model with real sensor data</div>
+        <div class="action-item"><i class="fas fa-chart-line"></i> Improves prediction accuracy over time</div>
+      </div>
+      <div style="margin-top:12px;padding:12px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--text3)">
+        To retrain model with this data: <code style="background:var(--border);padding:2px 6px;border-radius:4px">python train_model.py</code>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <div class="chart-title" style="margin:0"><i class="fas fa-table"></i> Latest 50 Readings</div>
+        <span id="tdUpdate" style="font-size:12px;color:var(--text3)"></span>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="status-table">
+          <thead><tr><th>#</th><th>Timestamp</th><th>Block</th><th>Temp (°C)</th><th>Humidity (%)</th><th>Gas</th><th>CO₂ ppm</th><th>Status</th></tr></thead>
+          <tbody id="tdBody">
+            <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text3)">
+              <i class="fas fa-spinner fa-spin" style="font-size:20px;display:block;margin-bottom:10px"></i>Loading...
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="footer">🧅 OnionStore | Test Data</div>
+  </main>
+</div>
+<script>
+  function updateClock(){ document.getElementById('clock').textContent = new Date().toLocaleTimeString(); }
+  setInterval(updateClock,1000); updateClock();
+  function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
+
+  let barChart, pieChart;
+
+  function loadTestData(){
+    fetch('/api/testdata').then(r=>r.json()).then(data=>{
+      const s = data.filter(r=>r.Status==='Safe').length;
+      const w = data.filter(r=>r.Status==='Warning').length;
+      const c = data.filter(r=>r.Status==='Critical').length;
+
+      document.getElementById('totalRows').textContent = data.length;
+      document.getElementById('safeRows').textContent  = s;
+      document.getElementById('warnRows').textContent  = w;
+      document.getElementById('critRows').textContent  = c;
+      document.getElementById('tdUpdate').textContent  = 'Updated: ' + new Date().toLocaleTimeString();
+
+      if(!barChart){
+        barChart = new Chart(document.getElementById('testBar'),{
+          type:'bar',
+          data:{ labels:['Safe','Warning','Critical'], datasets:[{data:[s,w,c], backgroundColor:['#1a9e5c','#d4820a','#c0392b'], borderRadius:6}]},
+          options:{ plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:'#6b4c35'}}, y:{ticks:{color:'#6b4c35'},beginAtZero:true} } }
+        });
+        pieChart = new Chart(document.getElementById('testPie'),{
+          type:'doughnut',
+          data:{ labels:['Safe','Warning','Critical'], datasets:[{data:[s,w,c], backgroundColor:['#1a9e5c','#d4820a','#c0392b'], borderWidth:2, borderColor:'#fff'}]},
+          options:{ plugins:{legend:{labels:{color:'#6b4c35'}}}, cutout:'60%' }
+        });
+      } else {
+        barChart.data.datasets[0].data = [s,w,c]; barChart.update();
+        pieChart.data.datasets[0].data = [s,w,c]; pieChart.update();
+      }
+
+      document.getElementById('tdBody').innerHTML = data.length
+        ? [...data].reverse().slice(0,50).map((r,i)=>`
+          <tr>
+            <td style="color:var(--text3)">${i+1}</td>
+            <td style="font-size:11px;white-space:nowrap">${r.timestamp||'—'}</td>
+            <td><strong>Block ${r.block_id||'—'}</strong></td>
+            <td>${r.Temperature||'—'}°C</td>
+            <td>${r.Humidity||'—'}%</td>
+            <td>${r.Gas||'—'}</td>
+            <td>${r.CO2||'—'}</td>
+            <td><span class="status-badge ${r.Status||''}">${r.Status||'—'}</span></td>
+          </tr>`).join('')
+        : `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text3)">
+            <i class="fas fa-satellite-dish" style="font-size:30px;display:block;margin-bottom:10px;color:var(--border)"></i>
+            No data yet. ESP8266 will save readings here automatically when connected.
+           </td></tr>`;
+    });
+  }
+
+  loadTestData();
+  setInterval(loadTestData, 5000);
+</script>
+</body>
+</html>

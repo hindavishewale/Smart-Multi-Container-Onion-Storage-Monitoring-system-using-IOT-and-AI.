@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Onion Storage Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar">
+  <a href="/" class="navbar-brand"><span>🧅</span> OnionStore</a>
+  <div class="navbar-links">
+    <a href="/" class="active"><i class="fas fa-th-large"></i> Dashboard</a>
+    <a href="/analytics"><i class="fas fa-chart-line"></i> Analytics</a>
+    <a href="/alerts"><i class="fas fa-bell"></i> Alerts</a>
+    <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
+  </div>
+  <div class="navbar-right">
+    <div class="live-badge"><span class="pulse"></span> Live</div>
+    <div class="time-display" id="clock"></div>
+    <button class="refresh-btn" onclick="location.reload()"><i class="fas fa-sync-alt"></i> Refresh</button>
+    <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar" id="sidebar">
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Main</div>
+      <a href="/" class="nav-item active"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="/analytics" class="nav-item"><i class="fas fa-chart-line"></i> Analytics</a>
+      <div class="sidebar-section">Management</div>
+      <a href="/alerts" class="nav-item"><i class="fas fa-bell"></i> Alerts</a>
+      <a href="/history" class="nav-item"><i class="fas fa-history"></i> History</a>
+      <a href="/testdata" class="nav-item"><i class="fas fa-file-csv"></i> Test Data</a>
+      <div class="sidebar-section">System</div>
+      <a href="/iot" class="nav-item"><i class="fas fa-microchip"></i> IoT Devices</a>
+      <a href="/settings" class="nav-item"><i class="fas fa-cog"></i> Settings</a>
+      <a href="/about" class="nav-item"><i class="fas fa-info-circle"></i> About</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">A</div>
+        <div>
+          <div class="user-name">Admin</div>
+          <div class="user-role">Storage Manager</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <main class="main-content" id="mainContent">
+
+    <div class="page-header">
+      <div class="page-title">🧅 Storage Dashboard</div>
+      <div class="page-subtitle">Real-time onion storage monitoring — {{ blocks|length }} active blocks</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon ic-purple"><i class="fas fa-cubes"></i></div>
+        <div>
+          <div class="stat-value">{{ blocks|length }}</div>
+          <div class="stat-label">Total Blocks</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon ic-green"><i class="fas fa-check-circle"></i></div>
+        <div>
+          <div class="stat-value">{{ blocks|selectattr('status','equalto','Safe')|list|length }}</div>
+          <div class="stat-label">Safe Blocks</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon ic-orange"><i class="fas fa-thermometer-half"></i></div>
+        <div>
+          <div class="stat-value">{{ "%.1f"|format(blocks|selectattr('temp')|map(attribute='temp')|list|sum / [blocks|selectattr('temp')|list|length, 1]|max) }}°C</div>
+          <div class="stat-label">Avg Temperature</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon ic-blue"><i class="fas fa-tint"></i></div>
+        <div>
+          <div class="stat-value">{{ "%.1f"|format(blocks|selectattr('humidity')|map(attribute='humidity')|list|sum / [blocks|selectattr('humidity')|list|length, 1]|max) }}%</div>
+          <div class="stat-label">Avg Humidity</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Block Cards -->
+    <div class="section-header">
+      <div class="section-title"><i class="fas fa-warehouse"></i> Storage Blocks</div>
+      <div class="filter-tabs">
+        <button class="filter-btn active" onclick="filterCards('all',this)">All</button>
+        <button class="filter-btn" onclick="filterCards('Safe',this)">🟢 Safe</button>
+        <button class="filter-btn" onclick="filterCards('Warning',this)">🟡 Warning</button>
+        <button class="filter-btn" onclick="filterCards('Critical',this)">🔴 Critical</button>
+      </div>
+    </div>
+
+    <div class="blocks-grid" id="blocksGrid">
+      {% for block in blocks %}
+      <div class="block-card {{ block.status }}" data-status="{{ block.status }}"
+           onclick="openModal({{ loop.index }}, '{{ block.status }}', '{{ block.temp }}', '{{ block.humidity }}', '{{ block.co2 }}', '{{ block.moisture }}')">
+        <div class="card-header">
+          <div class="block-id">
+            <span class="block-icon">🧅</span>
+            <span>Block {{ loop.index }}</span>
+          </div>
+          <span class="status-badge {{ block.status }}">{{ block.status }}</span>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric">
+            <div class="metric-icon temp-icon"><i class="fas fa-thermometer-half"></i></div>
+            <div class="metric-value">{% if block.temp %}{{ block.temp }}°C{% else %}—{% endif %}</div>
+            <div class="metric-label">Temperature</div>
+            <div class="metric-bar"><div class="metric-fill temp-fill" style="width:{% if block.temp %}{{ [((block.temp-20)/20*100)|int, 100]|min }}{% else %}0{% endif %}%"></div></div>
+          </div>
+          <div class="metric">
+            <div class="metric-icon hum-icon"><i class="fas fa-tint"></i></div>
+            <div class="metric-value">{% if block.humidity %}{{ block.humidity }}%{% else %}—{% endif %}</div>
+            <div class="metric-label">Humidity</div>
+            <div class="metric-bar"><div class="metric-fill hum-fill" style="width:{% if block.humidity %}{{ [block.humidity|int, 100]|min }}{% else %}0{% endif %}%"></div></div>
+          </div>
+          <div class="metric">
+            <div class="metric-icon moist-icon"><i class="fas fa-water"></i></div>
+            <div class="metric-value">{% if block.moisture %}{{ block.moisture }}{% else %}—{% endif %}</div>
+            <div class="metric-label">Moisture</div>
+            <div class="metric-bar"><div class="metric-fill moist-fill" style="width:{% if block.moisture %}{{ [(block.moisture/20*100)|int, 100]|min }}{% else %}0{% endif %}%"></div></div>
+          </div>
+          <div class="metric">
+            <div class="metric-icon co2-icon"><i class="fas fa-wind"></i></div>
+            <div class="metric-value">{% if block.co2 %}{{ block.co2 }}{% else %}—{% endif %}</div>
+            <div class="metric-label">CO₂ ppm</div>
+            <div class="metric-bar"><div class="metric-fill co2-fill" style="width:{% if block.co2 %}{{ [(block.co2/800*100)|int, 100]|min }}{% else %}0{% endif %}%"></div></div>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <!-- Actuator Status -->
+          <div class="actuators">
+            <span class="actuator {% if block.temp and (block.temp > 33 or block.co2 > 900) %}on{% else %}off{% endif %}">
+              <i class="fas fa-fan"></i>
+              Fan {% if block.temp and (block.temp > 33 or block.co2 > 900) %}ON{% else %}OFF{% endif %}
+            </span>
+          </div>
+          <a href="/block/{{ loop.index }}" class="detail-btn" onclick="event.stopPropagation()">
+            Details <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title"><i class="fas fa-chart-bar"></i> Temperature & Humidity per Block</div>
+        <canvas id="barChart" height="110"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="fas fa-chart-pie"></i> Status Distribution</div>
+        <canvas id="pieChart" height="160"></canvas>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+      <div class="chart-title"><i class="fas fa-table"></i> Block Status Overview</div>
+      <table class="status-table">
+        <thead>
+          <tr>
+            <th>Block</th>
+            <th>Temp (°C)</th>
+            <th>Humidity (%)</th>
+            <th>Moisture</th>
+            <th>CO₂ ppm</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for block in blocks %}
+          <tr>
+            <td><strong>🧅 Block {{ loop.index }}</strong></td>
+            <td>{{ block.temp if block.temp else '—' }}</td>
+            <td>{{ block.humidity if block.humidity else '—' }}</td>
+            <td>{{ block.moisture if block.moisture else '—' }}</td>
+            <td>{{ block.co2 if block.co2 else '—' }}</td>
+            <td><span class="status-badge {{ block.status }}">{{ block.status }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer">🧅 OnionStore Monitoring System &nbsp;|&nbsp; AI + IoT &nbsp;|&nbsp; Real-time Spoilage Detection</div>
+
+  </main>
+</div>
+
+<!-- ══ MODAL ══ -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModalDirect()"><i class="fas fa-times"></i></button>
+    <div class="modal-title" id="modalTitle">Block Details</div>
+    <div class="modal-subtitle" id="modalSubtitle">Live sensor readings & recommended actions</div>
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
+</div>
+
+<script>
+  // Clock
+  function updateClock() {
+    document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+  }
+  setInterval(updateClock, 1000); updateClock();
+
+  // Sidebar toggle (mobile)
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+
+  // Filter cards
+  function filterCards(status, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.block-card').forEach(card => {
+      card.style.display = (status === 'all' || card.dataset.status === status) ? 'flex' : 'none';
+    });
+  }
+
+  function openModal(id, status, temp, humidity, co2, moisture) {
+    temp = parseFloat(temp); humidity = parseFloat(humidity); co2 = parseFloat(co2);
+
+    const fanOn  = temp > 33 || co2 > 900;  // matches ESP condition exactly
+    const allOff = !fanOn;
+
+    document.getElementById('modalTitle').textContent    = '\ud83e\uddc5 Block ' + id + ' \u2014 ' + status;
+    document.getElementById('modalSubtitle').textContent = 'Temp: ' + temp + '\u00b0C  |  Humidity: ' + humidity + '%  |  CO\u2082: ' + co2 + ' ppm';
+
+    document.getElementById('modalActions').innerHTML = `
+      <div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">IoT Actuator Status</div>
+      <div class="action-item">
+        <i class="fas fa-fan" style="color:${fanOn?'#e74c3c':'#aaa'}"></i>
+        <span>Cooling Fan &nbsp;<strong style="color:${fanOn?'#e74c3c':'#27ae60'}">
+          ${fanOn
+            ? 'ON \u2014 ' + (temp>33 ? 'Temp '+temp+'\u00b0C > 33\u00b0C' : 'Gas '+co2+' > 900')
+            : 'OFF \u2014 All Normal'}
+        </strong></span>
+      </div>
+      <div class="action-item" style="font-size:12px;color:var(--text3)">
+        <i class="fas fa-info-circle"></i>
+        <span>Fan triggers when: Temperature > 33\u00b0C OR Gas > 900</span>
+      </div>
+      ${allOff ? '<div class="action-item"><i class="fas fa-check-circle" style="color:#27ae60"></i><span>\u2705 Fan OFF \u2014 Storage conditions normal</span></div>' : ''}
+    `;
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+  function closeModal(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+  }
+  function closeModalDirect() {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalDirect(); });
+
+  // ── Init Charts ──
+  const barChart = new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+      labels: [{% for b in blocks %}"Block {{ loop.index }}"{% if not loop.last %},{% endif %}{% endfor %}],
+      datasets: [
+        { label: 'Temperature (°C)', data: [{% for b in blocks %}{{ b.temp }}{% if not loop.last %},{% endif %}{% endfor %}], backgroundColor: 'rgba(181,69,27,0.7)',  borderRadius: 6 },
+        { label: 'Humidity (%)',     data: [{% for b in blocks %}{{ b.humidity }}{% if not loop.last %},{% endif %}{% endfor %}], backgroundColor: 'rgba(37,99,235,0.65)', borderRadius: 6 }
+      ]
+    },
+    options: {
+      plugins: { legend: { labels: { color: '#6b4c35', font: { family: 'Inter' } } } },
+      scales: {
+        x: { ticks: { color: '#6b4c35' }, grid: { color: 'rgba(181,69,27,0.08)' } },
+        y: { ticks: { color: '#6b4c35' }, grid: { color: 'rgba(181,69,27,0.08)' } }
+      }
+    }
+  });
+
+  const pieChart = new Chart(document.getElementById('pieChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Safe', 'Warning', 'Critical'],
+      datasets: [{ data: [0,0,0], backgroundColor: ['#1a9e5c','#d4820a','#c0392b'], borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: {
+      plugins: { legend: { labels: { color: '#6b4c35', font: { family: 'Inter' } } } },
+      cutout: '60%'
+    }
+  });
+
+  // ── Real-time update every 10s from /api/blocks ──
+  function updateDashboard() {
+    fetch('/api/blocks')
+      .then(r => r.json())
+      .then(blocks => {
+
+        // Update stat cards
+        const safeCount = blocks.filter(b => b.status === 'Safe').length;
+        const avgTemp   = (blocks.reduce((s,b) => s + b.temp, 0) / blocks.length).toFixed(1);
+        const avgHum    = (blocks.reduce((s,b) => s + b.humidity, 0) / blocks.length).toFixed(1);
+        document.querySelectorAll('.stat-value')[1].textContent = safeCount;
+        document.querySelectorAll('.stat-value')[2].textContent = avgTemp + '°C';
+        document.querySelectorAll('.stat-value')[3].textContent = avgHum + '%';
+
+        // Update each block card
+        blocks.forEach((b, i) => {
+          const card = document.querySelectorAll('.block-card')[i];
+          if (!card) return;
+
+          // Status badge + card class
+          card.className = `block-card ${b.status}`;
+          card.dataset.status = b.status;
+          card.querySelector('.status-badge').textContent = b.status;
+          card.querySelector('.status-badge').className   = `status-badge ${b.status}`;
+
+          // Metric values
+          const vals = card.querySelectorAll('.metric-value');
+          vals[0].textContent = b.temp     ? b.temp + '\u00b0C' : '\u2014';
+          vals[1].textContent = b.humidity ? b.humidity + '%'   : '\u2014';
+          vals[2].textContent = b.moisture ? b.moisture         : '\u2014';
+          vals[3].textContent = b.co2      ? b.co2              : '\u2014';
+
+          // Progress bars
+          const fills = card.querySelectorAll('.metric-fill');
+          fills[0].style.width = b.temp     ? Math.min(((b.temp-20)/20*100),100)+'%' : '0%';
+          fills[1].style.width = b.humidity ? Math.min(b.humidity,100)+'%'           : '0%';
+          fills[2].style.width = b.moisture ? Math.min((b.moisture/20*100),100)+'%'  : '0%';
+          fills[3].style.width = b.co2      ? Math.min((b.co2/800*100),100)+'%'      : '0%';
+
+          // Actuator — matches ESP: temp>33 OR gas>900
+          const acts  = card.querySelectorAll('.actuator');
+          const fanOn = b.temp > 33 || b.co2 > 900;
+          if(acts[0]){
+            acts[0].className   = `actuator ${fanOn ? 'on':'off'}`;
+            acts[0].innerHTML   = `<i class="fas fa-fan"></i> Fan ${fanOn?'ON':'OFF'}`;
+          }
+
+          card.onclick = () => openModal(i+1, b.status, b.temp, b.humidity, b.co2, b.moisture);
+        });
+
+        // Update table rows
+        const rows = document.querySelectorAll('.status-table tbody tr');
+        blocks.forEach((b, i) => {
+          if (!rows[i]) return;
+          const cells = rows[i].querySelectorAll('td');
+          cells[1].textContent = b.temp;
+          cells[2].textContent = b.humidity;
+          cells[3].textContent = b.moisture;
+          cells[4].textContent = b.co2;
+          cells[5].innerHTML   = `<span class="status-badge ${b.status}">${b.status}</span>`;
+        });
+
+        // Update bar chart
+        barChart.data.datasets[0].data = blocks.map(b => b.temp);
+        barChart.data.datasets[1].data = blocks.map(b => b.humidity);
+        barChart.update();
+
+        // Update pie chart
+        const s = { Safe:0, Warning:0, Critical:0 };
+        blocks.forEach(b => s[b.status]++);
+        pieChart.data.datasets[0].data = [s.Safe, s.Warning, s.Critical];
+        pieChart.update();
+
+        // Flash live badge
+        const badge = document.querySelector('.live-badge');
+        badge.style.background = '#d1fae5';
+        setTimeout(() => badge.style.background = '', 500);
+      })
+      .catch(() => console.log('Waiting for ESP data...'));
+  }
+
+  // Run immediately then every 2 seconds
+  updateDashboard();
+  setInterval(updateDashboard, 2000);
+</script>
+</body>
+</html>

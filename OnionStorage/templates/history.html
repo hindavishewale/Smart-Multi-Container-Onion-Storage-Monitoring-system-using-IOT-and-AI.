@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>History — OnionStore</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <a href="/" class="navbar-brand"><span>🧅</span> OnionStore</a>
+  <div class="navbar-links">
+    <a href="/"><i class="fas fa-th-large"></i> Dashboard</a>
+    <a href="/analytics"><i class="fas fa-chart-line"></i> Analytics</a>
+    <a href="/alerts"><i class="fas fa-bell"></i> Alerts</a>
+    <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
+  </div>
+  <div class="navbar-right">
+    <div class="live-badge"><span class="pulse"></span> Live</div>
+    <div class="time-display" id="clock"></div>
+    <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+  </div>
+</nav>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Main</div>
+      <a href="/" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="/analytics" class="nav-item"><i class="fas fa-chart-line"></i> Analytics</a>
+      <div class="sidebar-section">Management</div>
+      <a href="/alerts" class="nav-item"><i class="fas fa-bell"></i> Alerts</a>
+      <a href="/history" class="nav-item active"><i class="fas fa-history"></i> History</a>
+      <a href="/testdata" class="nav-item"><i class="fas fa-file-csv"></i> Test Data</a>
+      <div class="sidebar-section">System</div>
+      <a href="/iot" class="nav-item"><i class="fas fa-microchip"></i> IoT Devices</a>
+      <a href="/settings" class="nav-item"><i class="fas fa-cog"></i> Settings</a>
+      <a href="/about" class="nav-item"><i class="fas fa-info-circle"></i> About</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">A</div>
+        <div><div class="user-name">Admin</div><div class="user-role">Storage Manager</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="page-title"><i class="fas fa-history" style="color:var(--accent)"></i> Sensor History</div>
+      <div class="page-subtitle">Real sensor readings received from ESP8266 — auto updates every 5 seconds</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon ic-purple"><i class="fas fa-database"></i></div>
+        <div><div class="stat-value" id="h-total">—</div><div class="stat-label">Total Readings</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon ic-green"><i class="fas fa-check-circle"></i></div>
+        <div><div class="stat-value" id="h-safe">—</div><div class="stat-label">Safe</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#fef3c7;color:#d4820a"><i class="fas fa-exclamation-triangle"></i></div>
+        <div><div class="stat-value" id="h-warn">—</div><div class="stat-label">Warning</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#fee2e2;color:#c0392b"><i class="fas fa-exclamation-circle"></i></div>
+        <div><div class="stat-value" id="h-crit">—</div><div class="stat-label">Critical</div></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <div class="chart-title" style="margin:0"><i class="fas fa-database"></i> sensor_test_data.csv — Last 50 readings</div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span id="lastUpdate" style="font-size:12px;color:var(--text3)">Updating...</span>
+          <button class="refresh-btn" onclick="loadHistory()"><i class="fas fa-sync-alt"></i> Refresh</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="status-table">
+          <thead>
+            <tr><th>#</th><th>Timestamp</th><th>Block</th><th>Temp (°C)</th><th>Humidity (%)</th><th>Gas</th><th>Moisture</th><th>CO₂ ppm</th><th>Status</th></tr>
+          </thead>
+          <tbody id="histBody">
+            <tr><td colspan="9" style="text-align:center;color:var(--text3);padding:40px">
+              <i class="fas fa-spinner fa-spin" style="font-size:20px;margin-bottom:10px;display:block"></i>
+              Loading sensor history...
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="footer">🧅 OnionStore | Sensor History</div>
+  </main>
+</div>
+<script>
+  function updateClock(){ document.getElementById('clock').textContent = new Date().toLocaleTimeString(); }
+  setInterval(updateClock,1000); updateClock();
+  function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
+
+  function loadHistory(){
+    fetch('/api/testdata').then(r=>r.json()).then(data=>{
+      document.getElementById('h-total').textContent = data.length;
+      document.getElementById('h-safe').textContent  = data.filter(r=>r.Status==='Safe').length;
+      document.getElementById('h-warn').textContent  = data.filter(r=>r.Status==='Warning').length;
+      document.getElementById('h-crit').textContent  = data.filter(r=>r.Status==='Critical').length;
+      document.getElementById('lastUpdate').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+
+      const tbody = document.getElementById('histBody');
+      if(!data.length){
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:40px">
+          <i class="fas fa-satellite-dish" style="font-size:30px;display:block;margin-bottom:10px;color:var(--border)"></i>
+          No sensor data yet.<br>Make sure ESP8266 is connected and Flask is running.
+        </td></tr>`;
+        return;
+      }
+      tbody.innerHTML = [...data].reverse().map((r,i)=>`
+        <tr>
+          <td style="color:var(--text3)">${i+1}</td>
+          <td style="font-size:11px;color:var(--text3);white-space:nowrap">${r.timestamp||'—'}</td>
+          <td><strong>Block ${r.block_id||'—'}</strong></td>
+          <td>${r.Temperature||'—'}°C</td>
+          <td>${r.Humidity||'—'}%</td>
+          <td>${r.Gas||'—'}</td>
+          <td>${r.Moisture||'—'}</td>
+          <td>${r.CO2||'—'}</td>
+          <td><span class="status-badge ${r.Status||''}">${r.Status||'—'}</span></td>
+        </tr>`).join('');
+    }).catch(()=>{
+      document.getElementById('histBody').innerHTML =
+        '<tr><td colspan="9" style="text-align:center;color:#c0392b;padding:30px">⚠️ Failed to load data. Is Flask running?</td></tr>';
+    });
+  }
+
+  loadHistory();
+  setInterval(loadHistory, 5000);  // auto refresh every 5s
+</script>
+</body>
+</html>
